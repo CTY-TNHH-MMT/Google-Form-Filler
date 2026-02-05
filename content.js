@@ -106,6 +106,55 @@ function scrapeQuestions() {
     return questions;
 }
 
+// Helpers to compare option text with provided answers (accepts "a", "a.", "a)", etc.)
+function stripLeadingLabel(s) {
+    if (!s) return '';
+    return s.replace(/^[A-Za-z]\s*[\.\)]\s*/,'').trim();
+}
+
+function matchesAnswerText(optText, answer) {
+    if (!optText) return false;
+    const o = optText.trim();
+    const a = String(answer).trim();
+    if (!a) return false;
+    if (o === a) return true;
+    if (o.toLowerCase() === a.toLowerCase()) return true;
+
+    const oLower = o.toLowerCase();
+    const aLower = a.toLowerCase();
+
+    // match if option starts with 'a.' or 'a)'
+    if (oLower.startsWith(aLower + '.') || oLower.startsWith(aLower + ')')) return true;
+
+    // match if stripping a leading label from the option equals the answer (e.g., "a. Option" matched by "a")
+    if (stripLeadingLabel(o).toLowerCase() === aLower) return true;
+
+    // final fallback: compare alphanumeric-only forms
+    const norm = str => (str || '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+    if (norm(o) === norm(a)) return true;
+
+    return false;
+}
+
+// Preserve current scroll position while running an action, then restore.
+function preserveScrollAsync(action) {
+    const x = window.scrollX || window.pageXOffset || 0;
+    const y = window.scrollY || window.pageYOffset || 0;
+    try {
+        action();
+    } catch (e) {
+        console.warn('preserveScroll action error', e);
+    }
+
+    return new Promise(resolve => {
+        // Restore on next frame to override any scroll caused by action
+        requestAnimationFrame(() => {
+            try { window.scrollTo(x, y); } catch (e) {}
+            resolve();
+        });
+    });
+}
+
 async function fillForm(questions, answers) {
     console.log("🔄 Starting to fill form with questions:", questions);
     console.log("📝 Answers to fill:", answers);
@@ -151,7 +200,7 @@ async function fillForm(questions, answers) {
                 
                 for (let opt of radioOptions) {
                     const optText = opt.innerText?.trim() || opt.textContent?.trim() || '';
-                    if (optText === String(answer).trim()) {
+                    if (matchesAnswerText(optText, answer)) {
                         radio = opt;
                         console.log(`✅ Found radio option by text: ${optText}`);
                         break;
@@ -162,7 +211,7 @@ async function fillForm(questions, answers) {
             // Strategy 3: Try label text
             if (!radio) {
                 const labels = Array.from(container.querySelectorAll('label'));
-                const targetLabel = labels.find(l => l.innerText?.trim() === String(answer).trim());
+                const targetLabel = labels.find(l => matchesAnswerText(l.innerText?.trim() || '', answer));
                 if (targetLabel) {
                     radio = targetLabel;
                     console.log(`✅ Found radio option by label text`);
@@ -175,18 +224,22 @@ async function fillForm(questions, answers) {
                 // Prefer toggling an underlying input if available (no scroll)
                 const innerInput = radio.querySelector('input[type="radio"], input[type="checkbox"], input');
                 if (innerInput) {
-                    try {
-                        innerInput.checked = true;
-                        innerInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        innerInput.dispatchEvent(new Event('change', { bubbles: true }));
-                        radio.setAttribute && radio.setAttribute('aria-checked', 'true');
-                    } catch (e) {
-                        console.warn('Could not set underlying input checked:', e);
-                    }
+                    await preserveScrollAsync(() => {
+                        try {
+                            innerInput.checked = true;
+                            innerInput.dispatchEvent(new Event('input', { bubbles: true }));
+                            innerInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            radio.setAttribute && radio.setAttribute('aria-checked', 'true');
+                        } catch (e) {
+                            console.warn('Could not set underlying input checked:', e);
+                        }
+                    });
                 } else {
                     // Fallback: dispatch a synthetic click without focusing (less likely to cause scroll)
-                    try { radio.focus && radio.focus({ preventScroll: true }); } catch (e) { try { radio.focus && radio.focus(); } catch (e2) {} }
-                    radio.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                    await preserveScrollAsync(() => {
+                        try { radio.focus && radio.focus({ preventScroll: true }); } catch (e) { try { radio.focus && radio.focus(); } catch (e2) {} }
+                        radio.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                    });
                 }
                 await new Promise(resolve => setTimeout(resolve, 200));
             } else {
@@ -205,7 +258,7 @@ async function fillForm(questions, answers) {
                     const checkboxOptions = Array.from(container.querySelectorAll('div[role="checkbox"]'));
                     for (let opt of checkboxOptions) {
                         const optText = opt.innerText?.trim() || opt.textContent?.trim() || '';
-                        if (optText === String(ans).trim()) {
+                        if (matchesAnswerText(optText, ans)) {
                             checkbox = opt;
                             break;
                         }
@@ -215,7 +268,7 @@ async function fillForm(questions, answers) {
                 // Strategy 3: Try label
                 if (!checkbox) {
                     const labels = Array.from(container.querySelectorAll('label'));
-                    const targetLabel = labels.find(l => l.innerText?.trim() === String(ans).trim());
+                    const targetLabel = labels.find(l => matchesAnswerText(l.innerText?.trim() || '', ans));
                     if (targetLabel) checkbox = targetLabel;
                 }
 
@@ -227,17 +280,21 @@ async function fillForm(questions, answers) {
                         // Prefer toggling an underlying input if available
                         const innerInput = checkbox.querySelector('input[type="checkbox"], input[type="radio"], input');
                         if (innerInput) {
-                            try {
-                                innerInput.checked = true;
-                                innerInput.dispatchEvent(new Event('input', { bubbles: true }));
-                                innerInput.dispatchEvent(new Event('change', { bubbles: true }));
-                                checkbox.setAttribute && checkbox.setAttribute('aria-checked', 'true');
-                            } catch (e) {
-                                console.warn('Could not set underlying input checked:', e);
-                            }
+                            await preserveScrollAsync(() => {
+                                try {
+                                    innerInput.checked = true;
+                                    innerInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                    innerInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                    checkbox.setAttribute && checkbox.setAttribute('aria-checked', 'true');
+                                } catch (e) {
+                                    console.warn('Could not set underlying input checked:', e);
+                                }
+                            });
                         } else {
-                            try { checkbox.focus && checkbox.focus({ preventScroll: true }); } catch (e) { try { checkbox.focus && checkbox.focus(); } catch (e2) {} }
-                            checkbox.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                            await preserveScrollAsync(() => {
+                                try { checkbox.focus && checkbox.focus({ preventScroll: true }); } catch (e) { try { checkbox.focus && checkbox.focus(); } catch (e2) {} }
+                                checkbox.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                            });
                         }
                         await new Promise(resolve => setTimeout(resolve, 150));
                     }
