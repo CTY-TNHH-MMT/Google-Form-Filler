@@ -170,8 +170,24 @@ async function fillForm(questions, answers) {
             }
 
             if (radio) {
-                console.log(`✅ Clicking radio for Q${q.id}`);
-                radio.click();
+                console.log(`✅ Activating radio for Q${q.id} without scrolling`);
+
+                // Prefer toggling an underlying input if available (no scroll)
+                const innerInput = radio.querySelector('input[type="radio"], input[type="checkbox"], input');
+                if (innerInput) {
+                    try {
+                        innerInput.checked = true;
+                        innerInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        innerInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        radio.setAttribute && radio.setAttribute('aria-checked', 'true');
+                    } catch (e) {
+                        console.warn('Could not set underlying input checked:', e);
+                    }
+                } else {
+                    // Fallback: dispatch a synthetic click without focusing (less likely to cause scroll)
+                    try { radio.focus && radio.focus({ preventScroll: true }); } catch (e) { try { radio.focus && radio.focus(); } catch (e2) {} }
+                    radio.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                }
                 await new Promise(resolve => setTimeout(resolve, 200));
             } else {
                 console.warn(`❌ Could not find radio option for Q${q.id}: ${answer}`);
@@ -204,10 +220,25 @@ async function fillForm(questions, answers) {
                 }
 
                 if (checkbox) {
-                    const isChecked = checkbox.getAttribute('aria-checked') === 'true';
+                    const isChecked = checkbox.getAttribute && checkbox.getAttribute('aria-checked') === 'true';
                     if (!isChecked) {
-                        console.log(`✅ Clicking checkbox for: ${ans}`);
-                        checkbox.click();
+                        console.log(`✅ Activating checkbox for: ${ans} without scrolling`);
+
+                        // Prefer toggling an underlying input if available
+                        const innerInput = checkbox.querySelector('input[type="checkbox"], input[type="radio"], input');
+                        if (innerInput) {
+                            try {
+                                innerInput.checked = true;
+                                innerInput.dispatchEvent(new Event('input', { bubbles: true }));
+                                innerInput.dispatchEvent(new Event('change', { bubbles: true }));
+                                checkbox.setAttribute && checkbox.setAttribute('aria-checked', 'true');
+                            } catch (e) {
+                                console.warn('Could not set underlying input checked:', e);
+                            }
+                        } else {
+                            try { checkbox.focus && checkbox.focus({ preventScroll: true }); } catch (e) { try { checkbox.focus && checkbox.focus(); } catch (e2) {} }
+                            checkbox.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+                        }
                         await new Promise(resolve => setTimeout(resolve, 150));
                     }
                 } else {
@@ -222,11 +253,18 @@ async function fillForm(questions, answers) {
 
 // Crucial: Simulating typing events
 function simulateTyping(element, text) {
-    element.focus();
-    element.value = text;
+    // Try to focus without causing the browser to scroll the element into view.
+    try {
+        if (typeof element.focus === 'function') {
+            element.focus({ preventScroll: true });
+        }
+    } catch (e) {
+        try { element.focus(); } catch (e2) { /* ignore */ }
+    }
 
-    // Dispatch events to trigger internal listeners (React/Angular/etc)
+    // Set value and dispatch input/change/blur so frameworks pick up the change.
+    element.value = text;
     element.dispatchEvent(new Event('input', { bubbles: true }));
     element.dispatchEvent(new Event('change', { bubbles: true }));
-    element.dispatchEvent(new Event('blur', { bubbles: true }));
+    try { element.dispatchEvent(new Event('blur', { bubbles: true })); } catch (e) { /* ignore */ }
 }
