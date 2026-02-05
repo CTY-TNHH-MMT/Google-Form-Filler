@@ -508,6 +508,74 @@ For example, they may be self-confident but not at the expense of others.
 They genuinely want the best result and may seek different ways to achieve it.
 Achievers can make good leaders.
 
+#### Lecture 1. Information Assurance Policy Management
+Learning Objective
+Identify the role of an information systems security (ISS) policy framework in overcoming business challenges.
+Key Concepts
+
+ISS and information assurance in organizations
+ISS policies and their importance in organizations
+Four information security controls
+Business drivers that create the need for ISS policy framework
+U.S. compliancy laws and industry standards
+
+Security policies
+
+Why do organization need security policies?
+Information System Security
+Information Assurance
+Information Governance
+Importance of Governance
+Importance of Policies
+
+Exercise
+Within an assigned group, identify an appropriate policy, standard, procedure, and guideline for a specific security issue:
+• Group 1: Employee access to Facebook.
+• Group 2: Employee use of flash drives.
+• Group 3: Non-employee use of company resources.
+Process for Creating a Policy Framework (Generic)
+Business recognizes a need for a new policy to be developed.
+Collect documents relating to the new policy.
+Analyze existing policies for overlap and coverage.
+Develop case study relating to the new policy.
+Examine existing frameworks for policies that can be used.
+Implement new policy and add to policy change control board process.
+
+Purpose and mission for policy
+Responsibilities for enforcing policy
+Compliance issues covered by new policy
+Scope of policy coverage
+
+Exercise
+
+Within an assigned group, identify the steps needed to develop and implement a security policy for a specific type of organization:
+Group 1: Four-Dentist Dental Practice
+Group 2: Ten-Person Money Management Firm
+Group 3: Multinational IT Consulting Firm
+
+Exercise
+
+Within an assigned group, search the Internet and find a job description or job announcement for a specific corporate security officer:
+Group 1: Risk Manager
+Group 2: Security Manager
+Group 3: Chief Information Security Officer
+
+EXPLORE: RATIONALE
+Organizational Policy Development and Importance
+Policy = Business Requirement on Actions or Processes Performed
+Frameworks
+• Policy
+• Standard
+• Procedure
+• Guideline
+Threats to Systems
+Controls on Systems
+Summary
+In this presentation, the following were covered:
+• Four information security controls
+• Components of information security governance
+• Process for creating a policy framework
+• Importance of security policy in an organization
 
 ### Few-Shot Examples for In-Context Learning:
 Example 1:

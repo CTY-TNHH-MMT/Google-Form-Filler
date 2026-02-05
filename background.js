@@ -40,7 +40,7 @@ ${JSON.stringify(request.questions, null, 2)}
 Please analyze the profile and provide the best matching answer for each question ID.
 Return ONLY the JSON object with answers.`;
 
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${request.apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${request.apiKey}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
