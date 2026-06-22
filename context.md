@@ -1,52 +1,4 @@
-// background.js
-
-// Build the system instruction for Gemini
-function buildSystemInstruction() {
-    return `You are a meticulous, high-accuracy Google Form answering assistant.
-Your single goal is to produce the MOST CORRECT answer for EVERY question, using the provided user profile and reference material.
-
-REASONING APPROACH (think internally before answering — do NOT output your reasoning):
-- Read the question, its description, and ALL provided options carefully.
-- For knowledge/academic questions, recall the relevant facts from the reference material FIRST. Quote/match the exact wording in the material whenever possible.
-- For multiple-choice questions, evaluate EVERY option and use elimination: rule out clearly wrong options, then pick the single best-supported one.
-- Prefer answers that are explicitly supported by the reference material over guesses. Only fall back to general knowledge when the material does not cover the topic.
-- Re-check that your chosen option text matches one of the provided options EXACTLY before finalizing.
-
-CRITICAL RULES (MUST FOLLOW):
-1. You MUST answer EVERY question. Never skip any question ID.
-2. For "radio" type questions (single choice):
-   - Choose EXACTLY ONE option from the provided options list.
-   - Return the EXACT option text, character-for-character, INCLUDING any leading label such as "A.", "a)", or numbering. Do NOT rephrase, shorten, reorder, or modify it.
-3. For "checkbox" type questions (multiple choice):
-   - Choose ALL options that are correct (one or more) from the provided options list.
-   - Return a JSON ARRAY of exact option texts, e.g. ["Option A", "Option B"].
-   - Even if only one checkbox is selected, return it as an array: ["Option A"].
-   - Do not add options that are not clearly supported; do not omit correct ones.
-4. For "dropdown" type questions:
-   - Choose EXACTLY ONE option from the provided options list.
-   - Return the EXACT option text as-is.
-5. For "text" type questions (free text input):
-   - Provide a SHORT, precise, directly-relevant answer (no filler, no explanation).
-   - For personal info questions (name, email, phone, ID, etc.), use info from the user profile.
-   - For knowledge/academic questions, answer using the reference material; match its terminology.
-6. Always find the BEST matching information, even if the match is indirect.
-7. For personal info questions: use ONLY data from the user profile. NEVER invent personal info.
-8. For knowledge questions: use the reference material provided in the profile. If no reference material covers the topic, use your general knowledge to select the most reasonable answer — but still pick a concrete answer.
-9. NEVER leave any question unanswered.
-10. NEVER return explanations, comments, reasoning, or markdown — only the JSON object.
-11. NEVER return placeholders like "MANUAL_REVIEW" or "N/A".
-12. Output MUST be a SINGLE valid JSON object.
-13. Use the provided question ID EXACTLY as the JSON key.
-14. Values: strings for radio/dropdown/text questions, arrays of strings for checkbox questions.
-15. The chosen option text MUST be copied verbatim from the provided "options" list for that question.
-
-OUTPUT FORMAT (STRICT):
-{"q_0":"answer text","q_1":"Exact Option Text","q_2":["Checkbox A","Checkbox B"],"q_3":"dropdown option"}`;
-}
-
-// Build user content with profile, form metadata, and questions
-// Hardcoded reference material (content of context.md).
-const CONTEXT_MATERIAL = `# Chapter 1: Security and Information Technology
+# Chapter 1: Security and Information Technology
 
 ## Why Database Security?
 - Most databases provide access spanning several networks and across the world
@@ -518,9 +470,9 @@ const CONTEXT_MATERIAL = `# Chapter 1: Security and Information Technology
 - Display information in a report
 - Example of SQL query
 
-\`\`\`sql
+```sql
 SELECT title FROM songs, artists, WHERE songs.artists=groups.ID AND groups. Name= ‘Madonna'
-\`\`\`
+```
 
 ## Database Models
 - Representation of the way data is stored
@@ -1010,36 +962,36 @@ SELECT title FROM songs, artists, WHERE songs.artists=groups.ID AND groups. Name
    - Default user “mysql” and default group “mysql” will be automatically created if users and groups are not created
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    groupadd mysql  #Creates a group “mysql”
    useradd –g mysql mysql #Creates a user “mysql” and places
    #that user in
    #the group “mysql”
-   \`\`\`
+   ```
 2. Change the directory where MySQL database files are to be extracted and use tar utility to unzip and unpack the distribution file
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    cd/usr/local #Changes the directory
    tar xvfz /tmp/mysql-pathname.tar.gz #Unpacks the files
-   \`\`\`
+   ```
    - “pathname” would be the actual file and pathname of the file
    - For Solaris machines, tar would be replaced with gtar
 3. Place files in appropriate directory
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    ln –s /usr/local/version /usr/local/mysql
-   \`\`\`
+   ```
    - Version would be replaced with the subdirectory name created by tar
 4. Grant privileges and tables, change ownership of data files and programs
 
-   \`\`\`bash
+   ```bash
    cd/usr/local/mysql
    ./scripts/mysql_install_db
    chown –R mysql /usr/local/mysql
    chgrp –R mysql /usr/local/mysql
-   \`\`\`
+   ```
 
 ### Installing Linux Binary Distributions Using RPM
 - MySQL using RPM packaging
@@ -1054,30 +1006,30 @@ SELECT title FROM songs, artists, WHERE songs.artists=groups.ID AND groups. Name
    - Default user “mysql” and default group “mysql” will be automatically created if users and groups are not created
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    groupadd mysql  #Creates a group “mysql”
    useradd –g mysql mysql #Creates a user “mysql” and places
    #that user in
    #the group “mysql”
-   \`\`\`
+   ```
 2. Ensure no other packages of MySQL are on the system
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    rpm -qa # This will list all rpm files installed on the system
-   \`\`\`
+   ```
 3. Install the client and server packages for database connectivity and use
    - Execute the following commands:
 
-   \`\`\`bash
+   ```bash
    rmp –i MySQL – server- VERSION.glibc23.i386.rpm
    rmp –i MySQL –client- VERSION.glibc23.i386.rpm
-   \`\`\`
+   ```
 4. Test configuration by running:
 
-   \`\`\`bash
+   ```bash
    MySQL –u root
-   \`\`\`
+   ```
 
 ## Configuration
 - MySQL must be configured after installation
@@ -1147,7 +1099,7 @@ SELECT title FROM songs, artists, WHERE songs.artists=groups.ID AND groups. Name
   - Automatically creates basic file directory and grant tables for user permissions
   - Can run script manually
 
-\`\`\`bash
+```bash
 For binary:
 CD /usr/local/sysql
 /scripts/mysql_install_db
@@ -1155,13 +1107,13 @@ CD /usr/local/sysql
 For source installations:
 CD /usr/local/sysql-5.5.1
 scripts/mysql_install_db
-\`\`\`
+```
 
 - View the data directory
 
-\`\`\`bash
+```bash
 Ls –la /path/to/datadir/mysql
-\`\`\`
+```
 
 ## Setting Passwords
 - Server prompts user to complete other tasks
@@ -1491,187 +1443,4 @@ Ls –la /path/to/datadir/mysql
 - Optional management tools include Configuration Manager, Server Management Studio, Business Intelligence Development Studio, Client Tools Connectivity, and Server Profiler
 - Three different licensing options are available
 - There are several resources that offer help
-- Prior to installation, security should be considered`;
-
-function loadContextMaterial() {
-    return CONTEXT_MATERIAL;
-}
-
-function buildUserContent(profile, questions, formMeta, contextMaterial) {
-    let content = `## User Profile:\n${profile}\n\n`;
-
-    if (contextMaterial) {
-        content += `## Reference Material (authoritative source — prefer this for knowledge/academic questions):\n${contextMaterial}\n\n`;
-    }
-
-    if (formMeta && (formMeta.title || formMeta.description)) {
-        content += `## Form Context:\n`;
-        if (formMeta.title) content += `Form Title: ${formMeta.title}\n`;
-        if (formMeta.description) content += `Form Description: ${formMeta.description}\n`;
-        content += `\n`;
-    }
-
-    content += `## Questions to Answer:\n${JSON.stringify(questions, null, 2)}\n\n`;
-    content += `Analyze the user profile, reference material, and form context. Provide the best matching answer for each question ID.\nReturn ONLY the JSON object with answers.`;
-    return content;
-}
-
-// Call Gemini API with retry. opts: { retryCount, thinkingLevel, maxOutputTokens }
-async function callGemini(apiKey, systemInstruction, userContent, opts = {}) {
-    const retryCount = opts.retryCount || 0;
-    const thinkingLevel = opts.thinkingLevel || "high";
-    const maxOutputTokens = opts.maxOutputTokens || 8192;
-
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`,
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                systemInstruction: {
-                    parts: [{ text: systemInstruction }]
-                },
-                contents: [
-                    {
-                        role: "user",
-                        parts: [{ text: userContent }]
-                    }
-                ],
-                generationConfig: {
-                    temperature: 0,
-                    topP: 1,
-                    candidateCount: 1,
-                    maxOutputTokens: maxOutputTokens,
-                    response_mime_type: "application/json",
-                    thinkingConfig: {
-                        thinkingLevel: thinkingLevel
-                    }
-                }
-            })
-        }
-    );
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Gemini API HTTP Error:", response.status, response.statusText);
-        console.error("Response body:", errorText);
-        throw new Error(`Gemini API Error ${response.status}: ${response.statusText}. Details: ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    if (!data.candidates || data.candidates.length === 0) {
-        console.error("Gemini Error: No candidates in response", data);
-        throw new Error("Gemini returned no candidates. Check API key and quota.");
-    }
-
-    const candidate = data.candidates[0];
-    const finishReason = candidate.finishReason;
-
-    if (!candidate.content || !candidate.content.parts) {
-        // A common cause is the answer being cut off before any text was emitted
-        // (all the budget was consumed by internal thinking). Retry with more room.
-        if (finishReason === "MAX_TOKENS" && retryCount < 2) {
-            console.warn("Gemini hit MAX_TOKENS with no output. Retrying with larger token budget and lower thinking level.");
-            return callGemini(apiKey, systemInstruction, userContent, {
-                retryCount: retryCount + 1,
-                thinkingLevel: "medium",
-                maxOutputTokens: Math.min(maxOutputTokens * 2, 32768)
-            });
-        }
-        console.error("Gemini Error: Invalid response structure", data);
-        throw new Error("Gemini returned unexpected response structure.");
-    }
-
-    const rawText = candidate.content.parts.map(p => p.text || "").join("");
-    console.log("Raw Gemini response (finishReason:", finishReason, "):", rawText);
-
-    // If the JSON was truncated, retrying with a larger budget gives a complete object.
-    const truncated = finishReason === "MAX_TOKENS";
-
-    // Parse JSON, stripping markdown fences if present
-    let jsonStr = rawText;
-    const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    if (jsonMatch) {
-        jsonStr = jsonMatch[1];
-    }
-
-    let parsed;
-    try {
-        if (truncated) throw new Error("Response truncated by MAX_TOKENS");
-        parsed = JSON.parse(jsonStr);
-    } catch (jsonError) {
-        console.error("JSON Parse Error:", jsonError.message, "Content:", rawText);
-        if (retryCount < 2) {
-            console.log("Retrying for a complete, valid JSON object...");
-            const retryPrompt = userContent + "\n\nIMPORTANT: Return ONLY a single complete, valid JSON object with an answer for EVERY question ID. No other text.";
-            return callGemini(apiKey, systemInstruction, retryPrompt, {
-                retryCount: retryCount + 1,
-                // Give output more room and reduce thinking so the JSON is not cut off
-                thinkingLevel: retryCount === 0 ? "medium" : "low",
-                maxOutputTokens: Math.min(maxOutputTokens * 2, 32768)
-            });
-        }
-        throw new Error(`Gemini response is not valid JSON: ${rawText}`);
-    }
-
-    return parsed;
-}
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "FETCH_GEMINI") {
-        (async () => {
-            try {
-                const systemInstruction = buildSystemInstruction();
-                const contextMaterial = await loadContextMaterial();
-                const userContent = buildUserContent(request.profile, request.questions, request.formMeta, contextMaterial);
-
-                const parsed = await callGemini(request.apiKey, systemInstruction, userContent);
-
-                // Validate that we got a usable answer for every question
-                const questionIds = request.questions.map(q => q.id);
-                const isAnswered = (id) => {
-                    if (!(id in parsed)) return false;
-                    const v = parsed[id];
-                    if (Array.isArray(v)) return v.length > 0;
-                    return v !== null && v !== undefined && String(v).trim() !== "" && String(v).trim() !== "[MANUAL_REVIEW]";
-                };
-                let missingIds = questionIds.filter(id => !isAnswered(id));
-
-                // Targeted follow-up: re-ask ONLY for the questions still missing an answer.
-                if (missingIds.length > 0) {
-                    console.warn("Missing answers for question IDs:", missingIds, "- re-asking targeted follow-up.");
-                    try {
-                        const missingQuestions = request.questions.filter(q => missingIds.includes(q.id));
-                        const followupContent = buildUserContent(request.profile, missingQuestions, request.formMeta, contextMaterial)
-                            + "\n\nThese questions were left unanswered previously. You MUST provide a concrete best answer for EACH of them now.";
-                        const followup = await callGemini(request.apiKey, systemInstruction, followupContent);
-                        for (const id of missingIds) {
-                            if (id in followup && followup[id] !== undefined && followup[id] !== null) {
-                                parsed[id] = followup[id];
-                            }
-                        }
-                        missingIds = questionIds.filter(id => !isAnswered(id));
-                        if (missingIds.length > 0) {
-                            console.warn("Still missing after follow-up:", missingIds);
-                        }
-                    } catch (followupError) {
-                        console.warn("Follow-up request for missing answers failed:", followupError.message);
-                    }
-                }
-
-                console.log("Parsed Gemini answers:", parsed);
-                sendResponse({ success: true, data: parsed });
-
-            } catch (error) {
-                console.error("Background Fetch Error:", error.message);
-                console.error("Full error:", error);
-                sendResponse({
-                    success: false,
-                    error: error.message || "Unknown error occurred"
-                });
-            }
-        })();
-        return true;
-    }
-});
+- Prior to installation, security should be considered
